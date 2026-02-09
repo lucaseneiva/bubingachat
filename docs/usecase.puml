@@ -1,0 +1,31 @@
+@startuml usecase
+
+left to right direction
+
+actor "Authenticated User" as user
+actor "Server Owner" as owner
+actor "Guest" as guest
+
+owner --|> user
+
+rectangle "Concord" {
+    usecase "Register" as UC0
+    usecase "Login" as UC1
+    usecase "Manage Servers" as UC2
+    usecase "Manage Channels" as UC3
+    usecase "Send & Read Messages" as UC4
+    usecase "Invite Members" as UC5
+    usecase "Join Servers" as UC6
+}
+
+user --> UC4
+user --> UC6
+
+guest --> UC0
+guest --> UC1
+
+owner --> UC2
+owner --> UC3
+owner --> UC5
+
+@enduml
