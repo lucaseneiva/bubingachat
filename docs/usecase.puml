@@ -8,7 +8,7 @@ actor "Guest" as guest
 
 owner --|> user
 
-rectangle "Concord" {
+rectangle "Application" {
     usecase "Register" as UC0
     usecase "Login" as UC1
     usecase "Manage Servers" as UC2

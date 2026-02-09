@@ -3,18 +3,17 @@
 
 left to right direction
 
-LAYOUT_WITH_LEGEND()
+Person(user, "User", "Application user")
 
-Person(user, "User", "Concord user")
-
-System_Boundary(discord_clone, "Concord") {
-    Container(web_app, "Web Application", "React", "Provides Concord UI via browser")
-    Container(api, "API Application", "NestJS", "Handles business logic, authentication, real-time messaging")
+System_Boundary(application, "Application") {
+    Container(web_app, "Web Application", "React", "Provides application UI via browser")
+    Container(api, "API Server", "Node.js/Express + Socket.io", "Handles REST API and real-time messaging")
     ContainerDb(db, "Database", "PostgreSQL", "Stores users, servers, channels, messages")
 }
 
 Rel(user, web_app, "Uses", "HTTPS")
-Rel(web_app, api, "Makes API calls to", "HTTPS/WSS")
+Rel(web_app, api, "Makes API calls to", "HTTPS/REST")
+BiRel(web_app, api, "Real-time messaging", "WebSocket")
 Rel(api, db, "Reads from and writes to", "TCP/IP")
 
 @enduml
