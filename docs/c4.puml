@@ -8,7 +8,7 @@ Person(user, "User", "Application user")
 System_Boundary(application, "Application") {
     Container(web_app, "Web Application", "React", "Provides application UI via browser")
     Container(api, "API Server", "Node.js/Express + Socket.io", "Handles REST API and real-time messaging")
-    ContainerDb(db, "Database", "PostgreSQL", "Stores users, servers, channels, messages")
+    ContainerDb(db, "Database", "MongoDB", "Stores users, servers, channels, messages")
 }
 
 Rel(user, web_app, "Uses", "HTTPS")
