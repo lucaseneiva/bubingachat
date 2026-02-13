@@ -2,7 +2,8 @@ import { Router, type Response } from "express";
 import { prisma } from "../config/db.js";
 import { generateToken } from "../utils/jwt.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
-import { validateRequest, registerSchema, loginSchema } from "../middleware/validation.js";
+import { validateRequest} from "../middleware/validation.js";
+import { registerSchema, loginSchema } from "../../schemas/auth.schema.js";
 import { authenticate, type AuthRequest } from "../middleware/auth.js";
 
 const router = Router();

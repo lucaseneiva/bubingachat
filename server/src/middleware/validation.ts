@@ -1,30 +1,21 @@
-import type { Request, Response, NextFunction } from "express";
-import Joi from "joi";
+import { type Request, type Response, type NextFunction } from "express";
+import { z } from "zod";
 
-export const validateRequest = (schema: Joi.ObjectSchema) => {
-  return (req: Request, res: Response, next: NextFunction): void => {
-    const validation = schema.validate(req.body);
-    
-    if (validation.error) {
-      const errorMessage = validation.error.details[0]?.message || "Validation error";
+export const validateRequest = (schema: z.ZodSchema) => {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const result = schema.safeParse(req.body);
+
+    if (!result.success) {
+      const errorMessage = result.error;
+      
       res.status(400).json({
         success: false,
-        error: errorMessage,
+        error: Error,
       });
       return;
     }
-    
+
+    req.body = result.data;
     next();
   };
 };
-
-export const registerSchema = Joi.object({
-  username: Joi.string().min(3).max(30).required().trim(),
-  email: Joi.string().email().required().trim(),
-  password: Joi.string().min(6).required(),
-});
-
-export const loginSchema = Joi.object({
-  email: Joi.string().email().required().trim(),
-  password: Joi.string().required(),
-});
