@@ -9,19 +9,19 @@ const router = Router();
 router.post(
   "/register",
   validateRequest(registerSchema),
-  (req, res) => authController.register(req, res)
+  (req, res, next) => authController.register(req, res, next)
 );
 
 router.post(
   "/login",
   validateRequest(loginSchema),
-  (req, res) => authController.login(req, res)
+  (req, res, next) => authController.login(req, res, next)
 );
 
 router.get(
   "/me",
   authenticate,
-  (req, res) => authController.getMe(req, res)
+  (req, res, next) => authController.getMe(req, res, next)
 );
 
 export default router;

@@ -1,28 +1,24 @@
 import { prisma } from "../config/db.js";
 import { generateToken } from "../utils/jwt.js";
 import { hashPassword, comparePassword } from "../utils/password.js";
+import { ConflictError, UnauthorizedError, NotFoundError } from "../utils/errors.js";
 
 export class AuthService {
   async register(data: any) {
     const { username, email, password } = data;
 
-    // Verificar se usuário já existe (Opcional, mas recomendado antes do create)
     const existingUser = await prisma.user.findFirst({
       where: { OR: [{ email }, { username }] },
     });
 
     if (existingUser) {
-      throw new Error("User already exists");
+      throw new ConflictError("Email or username already in use");
     }
 
     const password_hash = await hashPassword(password);
 
     const user = await prisma.user.create({
-      data: {
-        username,
-        email,
-        password_hash,
-      },
+      data: { username, email, password_hash },
     });
 
     const userResponse = {
@@ -32,25 +28,17 @@ export class AuthService {
       created_at: user.created_at,
     };
 
-    const token = generateToken(userResponse);
-
-    return { user: userResponse, token };
+    return { user: userResponse, token: generateToken(userResponse) };
   }
 
   async login(data: any) {
     const { email, password } = data;
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
+    const isPasswordValid = user && await comparePassword(password, user.password_hash);
 
-    if (!user) {
-      throw new Error("Invalid credentials");
-    }
-
-    const isPasswordValid = await comparePassword(password, user.password_hash);
-    if (!isPasswordValid) {
-      throw new Error("Invalid credentials");
+    if (!user || !isPasswordValid) {
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     const userResponse = {
@@ -60,23 +48,17 @@ export class AuthService {
       created_at: user.created_at,
     };
 
-    const token = generateToken(userResponse);
-
-    return { user: userResponse, token };
+    return { user: userResponse, token: generateToken(userResponse) };
   }
 
   async getUserById(userId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-    });
+    const user = await prisma.user.findUnique({ where: { id: userId } });
 
     if (!user) {
-      throw new Error("User not found");
+      throw new NotFoundError("User");
     }
 
-    // Exclude password_hash
     const { password_hash, ...userWithoutPassword } = user;
-
     return userWithoutPassword;
   }
 }

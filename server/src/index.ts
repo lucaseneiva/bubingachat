@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import authRoutes from './routes/auth.routes.js';
+import { errorMiddleware } from './middleware/error.middleware.js';
 
 const app = express();
 
@@ -25,6 +26,8 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 app.use('/api/auth', authRoutes);
+
+app.use(errorMiddleware);
 
 app.get("/", (req, res) => {
     res.send("Concord API - Discord-like application");

@@ -5,9 +5,9 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-    "username": "testear",
-    "email": "test@examaple.com",
-    "password": "password123"
+    "username": "test1",
+    "email": "test1@examaple.com",
+    
 }
 
 ### 2. Login
@@ -18,6 +18,7 @@ Content-Type: application/json
 {
     "email": "test@example.com",
     "password": "password123"
+    
 }
 
 ### 3. Get Current User (Using token from login)
