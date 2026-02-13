@@ -18,8 +18,7 @@ Content-Type: application/json
 
 {
     "email": "test@example.com",
-    "password": "password123"
-    
+    "password": "password123"   
 }
 
 ### 3. Get Current User (Using token from login)
