@@ -11,7 +11,6 @@ export const Dashboard: React.FC = () => {
   const { user, token, logout } = useAuthStore();
   const [socket, setSocket] = useState<Socket | null>(null);
   
-  // State
   const [rooms, setRooms] = useState<Room[]>([]);
   const [currentRoom, setCurrentRoom] = useState<Room | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -19,33 +18,25 @@ export const Dashboard: React.FC = () => {
   const [newRoomName, setNewRoomName] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 1. Initialize Socket & Fetch Rooms
   useEffect(() => {
     if (!token) return;
 
-    // Connect with Auth Token
     const newSocket = io(SOCKET_URL, {
       auth: { token }
     });
 
     setSocket(newSocket);
-
-    // Load Room List
     loadRooms();
 
-    // Cleanup
     return () => {
       newSocket.disconnect();
     };
   }, [token]);
 
-  // 2. Handle Socket Events
   useEffect(() => {
     if (!socket) return;
 
     socket.on('receive_message', (message: Message) => {
-      // Only append if it belongs to the current room (safety check)
-      // Ideally backend only sends to room members, but good to be safe
       setMessages((prev) => [...prev, message]);
     });
 
@@ -54,7 +45,6 @@ export const Dashboard: React.FC = () => {
     };
   }, [socket, currentRoom]);
 
-  // 3. Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -84,7 +74,6 @@ export const Dashboard: React.FC = () => {
   const handleJoinRoom = async (room: Room) => {
     if (currentRoom?.id === room.id) return;
 
-    // Leave old room
     if (currentRoom && socket) {
       socket.emit('leave_room', currentRoom.id);
     }
@@ -92,14 +81,11 @@ export const Dashboard: React.FC = () => {
     setCurrentRoom(room);
 
     try {
-        // Join via API (to update DB membership)
         await roomService.joinRoom(room.id);
         
-        // Fetch History
         const history = await roomService.getMessages(room.id);
         setMessages(history);
 
-        // Join via Socket (real-time)
         if (socket) {
             socket.emit('join_room', room.id);
         }
@@ -112,9 +98,6 @@ export const Dashboard: React.FC = () => {
     e.preventDefault();
     if (!inputText.trim() || !socket || !currentRoom) return;
 
-    // Optimistic UI update could happen here, but for MVP we wait for server echo
-    // actually, let's wait for server echo to ensure it persisted.
-
     socket.emit('send_message', {
       roomId: currentRoom.id,
       content: inputText,
@@ -124,30 +107,32 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="h-screen flex flex-col bg-gray-100">
-      {/* Navbar */}
-      <header className="bg-white shadow-sm p-4 flex justify-between items-center z-10">
-        <h1 className="text-xl font-bold text-gray-800">BubingaChat 🪵</h1>
+    <div className="h-screen flex flex-col bg-background-secondary">
+      <header className="bg-white border-b border-border px-6 py-4 flex justify-between items-center">
+        
+         <img 
+    src="logo.png" 
+    alt="BubingaChat logo"
+    className="h-16 w-auto object-contain"/>
         <div className="flex items-center gap-4">
-          <span className="text-sm text-gray-600">User: <b>{user?.username}</b></span>
-          <Button onClick={logout} variant="secondary" className="py-1 px-3 text-sm">Logout</Button>
+          <span className="text-sm text-text-secondary">User: <b className="text-text-primary">{user?.username}</b></span>
+          <Button onClick={logout} variant="secondary" className="py-2 px-4 text-sm">Logout</Button>
         </div>
       </header>
 
       <div className="flex-1 flex overflow-hidden">
-        {/* Sidebar - Rooms */}
-        <aside className="w-64 bg-gray-800 text-white flex flex-col">
-          <div className="p-4 border-b border-gray-700">
-            <h2 className="font-semibold mb-2">Rooms</h2>
+        <aside className="w-72 bg-white border-r border-border flex flex-col">
+          <div className="p-4 border-b border-border">
+            <h2 className="font-medium text-text-primary mb-3">Rooms</h2>
             <form onSubmit={handleCreateRoom} className="flex gap-2">
               <input
                 type="text"
                 placeholder="New Room..."
-                className="w-full px-2 py-1 text-black rounded text-sm"
+                className="flex-1 px-3 py-2 text-sm border border-border-light rounded-input focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                 value={newRoomName}
                 onChange={(e) => setNewRoomName(e.target.value)}
               />
-              <button type="submit" className="bg-blue-600 px-2 rounded">+</button>
+              <button type="submit" className="bg-primary text-white px-3 rounded-btn hover:bg-primary-hover transition-colors">+</button>
             </form>
           </div>
           
@@ -156,42 +141,41 @@ export const Dashboard: React.FC = () => {
               <button
                 key={room.id}
                 onClick={() => handleJoinRoom(room)}
-                className={`w-full text-left px-3 py-2 rounded transition-colors ${
-                  currentRoom?.id === room.id ? 'bg-blue-700' : 'hover:bg-gray-700'
+                className={`w-full text-left px-4 py-2.5 rounded-input transition-all ${
+                  currentRoom?.id === room.id 
+                    ? 'bg-primary text-white' 
+                    : 'text-text-primary hover:bg-background-secondary'
                 }`}
               >
                 # {room.name}
               </button>
             ))}
-            {rooms.length === 0 && <div className="text-gray-500 text-sm p-2">No rooms yet</div>}
+            {rooms.length === 0 && <div className="text-text-secondary text-sm p-4">No rooms yet</div>}
           </div>
         </aside>
 
-        {/* Chat Area */}
         <main className="flex-1 flex flex-col bg-white">
           {currentRoom ? (
             <>
-              {/* Chat Header */}
-              <div className="p-4 border-b bg-gray-50 flex justify-between items-center shadow-sm">
-                <h3 className="font-bold text-gray-700"># {currentRoom.name}</h3>
+              <div className="px-6 py-4 border-b border-border bg-background-secondary">
+                <h3 className="font-medium text-text-primary"># {currentRoom.name}</h3>
               </div>
 
-              {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {messages.map((msg) => {
                   const isMe = msg.user.id === user?.id;
                   return (
                     <div key={msg.id} className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[70%] rounded-lg px-4 py-2 shadow-sm ${
-                        isMe ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-800'
+                      <div className={`max-w-[70%] rounded-btn px-4 py-3 ${
+                        isMe ? 'bg-primary text-white' : 'bg-background-secondary text-text-primary'
                       }`}>
                         {!isMe && (
-                          <div className="text-xs font-bold text-gray-500 mb-1">
+                          <div className="text-xs font-medium text-text-secondary mb-1">
                             {msg.user.username}
                           </div>
                         )}
                         <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                        <div className={`text-[10px] mt-1 text-right ${isMe ? 'text-blue-200' : 'text-gray-400'}`}>
+                        <div className={`text-[10px] mt-1.5 ${isMe ? 'text-primary-light' : 'text-text-secondary'}`}>
                           {new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                         </div>
                       </div>
@@ -201,9 +185,8 @@ export const Dashboard: React.FC = () => {
                 <div ref={messagesEndRef} />
               </div>
 
-              {/* Input Area */}
-              <div className="p-4 border-t bg-gray-50">
-                <form onSubmit={handleSendMessage} className="flex gap-2">
+              <div className="p-4 border-t border-border bg-background-secondary">
+                <form onSubmit={handleSendMessage} className="flex gap-3">
                   <Input 
                     name="message"
                     value={inputText}
@@ -216,7 +199,7 @@ export const Dashboard: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-gray-400">
+            <div className="flex-1 flex items-center justify-center text-text-secondary">
               Select a room to start chatting
             </div>
           )}

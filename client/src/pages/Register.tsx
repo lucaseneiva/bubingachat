@@ -69,80 +69,82 @@ export const Register: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Or{' '}
-            <Link to="/login" className="font-medium text-blue-600 hover:text-blue-500">
-              sign in to your existing account
-            </Link>
-          </p>
+    <div className="min-h-screen flex items-center justify-center bg-background-secondary py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-card border border-border p-8 shadow-card">
+          <div className="text-center mb-8">
+            <h2 className="text-2xl font-display font-semibold text-text-primary">
+              Create your account
+            </h2>
+            <p className="mt-2 text-sm text-text-secondary">
+              Or{' '}
+              <Link to="/login" className="font-medium text-primary hover:text-primary-hover transition-colors">
+                sign in to your existing account
+              </Link>
+            </p>
+          </div>
+          
+          <form onSubmit={handleSubmit}>
+            {error && (
+              <div className="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-input text-sm">
+                {error}
+              </div>
+            )}
+            
+            <Input
+              label="Username"
+              type="text"
+              name="username"
+              value={username}
+              onChange={setUsername}
+              placeholder="Choose a username"
+              error={errors.username}
+              required
+            />
+            
+            <Input
+              label="Email address"
+              type="email"
+              name="email"
+              value={email}
+              onChange={setEmail}
+              placeholder="Enter your email"
+              error={errors.email}
+              required
+            />
+            
+            <Input
+              label="Password"
+              type="password"
+              name="password"
+              value={password}
+              onChange={setPassword}
+              placeholder="Create a password"
+              error={errors.password}
+              required
+            />
+            
+            <Input
+              label="Confirm Password"
+              type="password"
+              name="confirmPassword"
+              value={confirmPassword}
+              onChange={setConfirmPassword}
+              placeholder="Confirm your password"
+              error={errors.confirmPassword}
+              required
+            />
+            
+            <Button
+              type="submit"
+              loading={loading}
+              disabled={loading}
+              className="w-full mt-2"
+            >
+              Create account
+            </Button>
+          </form>
         </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
-              {error}
-            </div>
-          )}
-          
-          <Input
-            label="Username"
-            type="text"
-            name="username"
-            value={username}
-            onChange={setUsername}
-            placeholder="Choose a username"
-            error={errors.username}
-            required
-          />
-          
-          <Input
-            label="Email address"
-            type="email"
-            name="email"
-            value={email}
-            onChange={setEmail}
-            placeholder="Enter your email"
-            error={errors.email}
-            required
-          />
-          
-          <Input
-            label="Password"
-            type="password"
-            name="password"
-            value={password}
-            onChange={setPassword}
-            placeholder="Create a password"
-            error={errors.password}
-            required
-          />
-          
-          <Input
-            label="Confirm Password"
-            type="password"
-            name="confirmPassword"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            placeholder="Confirm your password"
-            error={errors.confirmPassword}
-            required
-          />
-          
-          <Button
-            type="submit"
-            loading={loading}
-            disabled={loading}
-            className="w-full"
-          >
-            Create account
-          </Button>
-        </form>
       </div>
     </div>
   );
