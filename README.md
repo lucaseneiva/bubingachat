@@ -23,6 +23,8 @@
 
 <br />
 
+<img width="1196" height="779" alt="image" src="https://github.com/user-attachments/assets/abb75f56-5588-4296-a692-14c5fb4376fd" />
+
 <div align="center">
   <strong>A modern, open-source team communication platform built for speed, clarity, and collaboration.</strong><br/>
   Real-time messaging, channels, and direct messages — all in one place.
