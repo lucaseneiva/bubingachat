@@ -15,5 +15,47 @@ model User {
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 
+  // Relations
+  messages      Message[]
+  member_of     RoomMember[]
+
   @@map("users")
+}
+
+model Room {
+  id         String   @id @default(uuid())
+  name       String?  // Nullable for DMs, required for Groups usually
+  is_group   Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  // Relations
+  messages   Message[]
+  members    RoomMember[]
+
+  @@map("rooms")
+}
+
+model RoomMember {
+  room_id   String
+  user_id   String
+  joined_at DateTime @default(now())
+
+  room      Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([room_id, user_id]) // Composite Primary Key
+  @@map("room_members")
+}
+
+model Message {
+  id         String   @id @default(uuid())
+  room_id    String
+  user_id    String
+  content    String   @db.Text
+  created_at DateTime @default(now())
+
+  room       Room     @relation(fields: [room_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("messages")
 }
